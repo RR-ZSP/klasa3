@@ -9,7 +9,7 @@
     h1 { margin-bottom: 6px; }
     .meta { color: #444; margin-top: 0; }
     .task { max-width: 920px; font-size: 18px; }
-    select.blank { font-size: 16px; padding: 4px 6px; margin: 0 4px; border: 2px solid #bbb; border-radius: 8px; background: white; min-width: 64px; }
+    select.blank { font-size: 16px; padding: 4px 6px; margin: 0 4px; border: 2px solid #bbb; border-radius: 8px; background: white; min-width: 70px; }
     .correct { border-color: #1b8f2e !important; background: #eaffee; }
     .incorrect { border-color: #c62828 !important; background: #ffecec; }
     .controls { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -33,18 +33,35 @@
   <p class="meta">Wybierasz tylko: <b>u/ó</b>, <b>rz/ż</b>, <b>ch/h</b>.</p>
 
   <div class="task">
-    W poniedziałek w klasie był konkurs. H<select class="blank" data-answer="ó"><option value="">—</option><option>u</option><option>ó</option></select>k wiatru
-    słychać było za oknem, a na parapecie usiadł wr<select class="blank" data-answer="ó"><option value="">—</option><option>u</option><option>ó</option></select>bel.
-    Pani poprosiła, by zachować cis<select class="blank" data-answer="z"><option value="">—</option><option>z</option><option>rz</option></select>ę? (nie)
-    Lepiej: by nie szeptać i nie p<select class="blank" data-answer="rz"><option value="">—</option><option>rz</option><option>ż</option></select>eszkadzać innym.
-    Na tablicy zapisaliśmy kr<select class="blank" data-answer="ó"><option value="">—</option><option>u</option><option>ó</option></select>tkie zdanie,
-    a potem czytaliśmy je głośno. W przerwie kolega wziął p<select class="blank" data-answer="l"><option value="">—</option></select>ecak? (pomijamy)
-    Zamiast tego: w przerwie zjadłem jabłko i bu<select class="blank" data-answer="ł"><option value="">—</option></select>kę? (pomijamy)
-    Lepiej: W przerwie zjadłem bułkę i poszedłem na koryta<select class="blank" data-answer="rz"><option value="">—</option><option>rz</option><option>ż</option></select>.
-    Tam zobaczyłem du<select class="blank" data-answer="ż"><option value="">—</option><option>rz</option><option>ż</option></select>y plakat.
-    Na nim był rysunek: drzewo, krzak i je<select class="blank" data-answer="ż"><option value="">—</option><option>rz</option><option>ż</option></select>.
-    Wróciłem do ławki i pisałem dalej bardzo c<select class="blank" data-answer="ch"><option value="">—</option><option>ch</option><option>h</option></select>ętnie.
-    Na koniec dostałem p<select class="blank" data-answer="ó"><option value="">—</option><option>u</option><option>ó</option></select>ł punktu więcej.
+    W poniedziałek w klasie był konkurs.
+    H<select class="blank" data-answer="u">
+      <option value="">—</option><option value="u">u</option><option value="ó">ó</option>
+    </select>k wiatru słychać było za oknem, a na parapecie usiadł wr<select class="blank" data-answer="ó">
+      <option value="">—</option><option value="u">u</option><option value="ó">ó</option>
+    </select>bel.
+    Pani poprosiła, by zachować ciszę i nie p<select class="blank" data-answer="rz">
+      <option value="">—</option><option value="rz">rz</option><option value="ż">ż</option>
+    </select>eszkadzać innym.
+    Na tablicy zapisaliśmy kr<select class="blank" data-answer="ó">
+      <option value="">—</option><option value="u">u</option><option value="ó">ó</option>
+    </select>tkie zdanie,
+    a potem czytaliśmy je głośno.
+    W przerwie zjadłem bułkę i poszedłem na koryta<select class="blank" data-answer="rz">
+      <option value="">—</option><option value="rz">rz</option><option value="ż">ż</option>
+    </select>.
+    Tam zobaczyłem du<select class="blank" data-answer="ż">
+      <option value="">—</option><option value="rz">rz</option><option value="ż">ż</option>
+    </select>y plakat.
+    Na nim był rysunek: drzewo, krzak i je<select class="blank" data-answer="ż">
+      <option value="">—</option><option value="rz">rz</option><option value="ż">ż</option>
+    </select>.
+    Wróciłem do ławki i pisałem dalej bardzo
+    <select class="blank" data-answer="ch">
+      <option value="">—</option><option value="ch">ch</option><option value="h">h</option>
+    </select>ętnie.
+    Na koniec dostałem p<select class="blank" data-answer="ó">
+      <option value="">—</option><option value="u">u</option><option value="ó">ó</option>
+    </select>ł punktu więcej.
   </div>
 
   <div class="hint">Jeśli widzisz „—”, to jeszcze nie wybrano znaku.</div>
@@ -92,6 +109,7 @@
     if (percent >= 55) return 2;
     return 1;
   }
+
   function resetAll(){
     blanks.forEach(s=>{ s.value=""; s.classList.remove("correct","incorrect"); });
     panel.style.display="none";
@@ -99,13 +117,19 @@
     mistakesBox.style.display="none";
     mailLink.classList.add("disabled"); mailLink.href="#";
   }
+
   function buildMailto(to, subject, body){
     const enc = (v)=>encodeURIComponent(v);
     return `mailto:${enc(to)}?subject=${enc(subject)}&body=${enc(body)}`;
   }
+
   function computeAndShow(){
     const notFilled = blanks.filter(s=>!s.value);
-    if(notFilled.length){ alert("Uzupełnij wszystkie pola."); notFilled[0].focus(); return; }
+    if(notFilled.length){
+      alert(`Uzupełnij wszystkie pola. Brakuje: ${notFilled.length}`);
+      notFilled[0].focus();
+      return;
+    }
 
     let correct=0;
     const mistakes=[];
@@ -141,25 +165,33 @@
 
     const subject="Wynik dyktanda ortograficznego – Dyktando2";
     const bodyLines=[
-      "Dzień dobry,","",
+      "Dzień dobry,",
+      "",
       "Wynik dyktanda (wybór tylko u/ó, rz/ż, ch/h):",
       `- Wynik: ${correct} / ${total}`,
       `- Procent: ${percent}%`,
-      `- Ocena (surowa): ${grade}`,"",
+      `- Ocena (surowa): ${grade}`,
+      "",
       mistakes.length ? "Błędy:" : "Brak błędów.",
       ...mistakes.map(m=>`- Pole ${m.nr}: wybrano „${m.wybrane}”, poprawnie „${m.poprawne}”`),
-      "","Pozdrawiam"
+      "",
+      "Pozdrawiam"
     ];
     const body=bodyLines.join("\n");
-    const to=(emailTo.value||"").trim();
-    if(to){ mailLink.href=buildMailto(to, subject, body); mailLink.classList.remove("disabled"); }
-    else { mailLink.href="#"; mailLink.classList.add("disabled"); }
 
-    emailTo.oninput=()=>{
-      const t=(emailTo.value||"").trim();
-      if(t){ mailLink.href=buildMailto(t, subject, body); mailLink.classList.remove("disabled"); }
-      else { mailLink.href="#"; mailLink.classList.add("disabled"); }
+    const updateMailLink = ()=>{
+      const to=(emailTo.value||"").trim();
+      if(to){
+        mailLink.href=buildMailto(to, subject, body);
+        mailLink.classList.remove("disabled");
+      } else {
+        mailLink.href="#";
+        mailLink.classList.add("disabled");
+      }
     };
+
+    updateMailLink();
+    emailTo.oninput = updateMailLink;
   }
 
   checkBtn.addEventListener("click", ()=>{
