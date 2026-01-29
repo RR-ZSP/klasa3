@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Dyktando ortograficzne – Dla Kochanej Matyldy</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; margin: 24px; }
+    h1 { margin-bottom: 6px; }
+    .meta { color: #444; margin-top: 0; }
+    .task { max-width: 920px; font-size: 18px; }
+    select.blank {
+      font-size: 16px; padding: 4px 6px; margin: 0 4px;
+      border: 2px solid #bbb; border-radius: 8px; background: white;
+      min-width: 64px;
+    }
+    .correct { border-color: #1b8f2e !important; background: #eaffee; }
+    .incorrect { border-color: #c62828 !important; background: #ffecec; }
+    .controls { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    button {
+      font-size: 16px; padding: 10px 14px; border: 0; border-radius: 10px;
+      background: #1f6feb; color: white; cursor: pointer;
+    }
+    button.secondary { background: #444; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .panel {
+      max-width: 920px; margin-top: 16px; padding: 14px;
+      border: 1px solid #ddd; border-radius: 12px; background: #fafafa;
+    }
+    .resultLine { margin: 6px 0; }
+    .strict { font-weight: bold; }
+    .mailRow { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+    input[type="email"] { padding: 10px 12px; border-radius: 10px; border: 1px solid #bbb; min-width: 260px; }
+    a#mailLink {
+      display: inline-block; padding: 10px 14px; border-radius: 10px;
+      background: #0b7a3a; color: white; text-decoration: none;
+    }
+    a#mailLink.disabled { opacity: 0.5; pointer-events: none; }
+    .small { font-size: 14px; color: #555; }
+    .mistakes { margin-top: 10px; }
+    .mistakes li { margin: 3px 0; }
+    .hint { font-size: 14px; color:#555; margin-top:10px; }
+    .nowrap { white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <h1>Dyktando ortograficzne – klasa 4</h1>
+  <p class="meta">Wybierasz tylko <b>literki/znaki ortograficzne</b> (u/ó, rz/ż, ch/h).</p>
+
+  <div class="task" id="task">
+    W sobotę <span class="nowrap">wr<select class="blank" data-answer="ó">
+      <option value="">—</option><option>u</option><option>ó</option>
+    </select>b</span>el usiadł na gałęzi.
+    Na ścieżce leżał k<select class="blank" data-answer="ó">
+      <option value="">—</option><option>u</option><option>ó</option>
+    </select>rz,
+    a obok stał d<select class="blank" data-answer="u">
+      <option value="">—</option><option>u</option><option>ó</option>
+    </select>ży plecak.
+    Z krzaków wybiegł je<select class="blank" data-answer="ż">
+      <option value="">—</option><option>ż</option><option>rz</option>
+    </select>
+    i s<select class="blank" data-answer="z">
+      <option value="">—</option><option>z</option><option>rz</option>
+    </select>ybko schował się pod liśćmi.
+    Pani poprosiła, abyśmy byli uwa<select class="blank" data-answer="ż">
+      <option value="">—</option><option>ż</option><option>rz</option>
+    </select>ni
+    i szli ci<select class="blank" data-answer="ch">
+      <option value="">—</option><option>ch</option><option>h</option>
+    </select>o.
+    W oddali sły<select class="blank" data-answer="ch">
+      <option value="">—</option><option>ch</option><option>h</option>
+    </select>ać było
+    <span class="nowrap">h<select class="blank" data-answer="u">
+      <option value="">—</option><option>u</option><option>ó</option>
+    </select>k</span> wiatru.
+    Na koniec zrobiliśmy kr<select class="blank" data-answer="ó">
+      <option value="">—</option><option>u</option><option>ó</option>
+    </select>tki odpoczynek
+    i wr<select class="blank" data-answer="ó">
+      <option value="">—</option><option>u</option><option>ó</option>
+    </select>ciliśmy do szkoły.
+  </div>
+
+  <div class="hint">Tip: jeśli widzisz „—”, to znaczy że jeszcze nie wybrano literki.</div>
+
+  <div class="controls">
+    <button id="checkBtn">Sprawdź</button>
+    <button class="secondary" id="resetBtn">Wyczyść</button>
+  </div>
+
+  <div class="panel" id="panel" style="display:none;">
+    <div class="resultLine" id="scoreLine"></div>
+    <div class="resultLine" id="percentLine"></div>
+    <div class="resultLine strict" id="gradeLine"></div>
+
+    <div class="mistakes" id="mistakesBox" style="display:none;">
+      <div><b>Błędy:</b></div>
+      <ul id="mistakesList"></ul>
+    </div>
+
+    <div class="mailRow">
+      <label>
+        Email (np. rodzica/nauczyciela):
+        <input type="email" id="emailTo" placeholder="np. nauczyciel@szkola.pl" />
+      </label>
+      <a id="mailLink" class="disabled" href="#">Wyślij wynik mailem</a>
+    </div>
+    <div class="small">
+      Wysyłka działa przez <b>mailto:</b> – otwiera pocztę z gotową wiadomością.
+    </div>
+  </div>
+
+  <script>
+    const checkBtn = document.getElementById("checkBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const panel = document.getElementById("panel");
+    const scoreLine = document.getElementById("scoreLine");
+    const percentLine = document.getElementById("percentLine");
+    const gradeLine = document.getElementById("gradeLine");
+    const mistakesBox = document.getElementById("mistakesBox");
+    const mistakesList = document.getElementById("mistakesList");
+    const emailTo = document.getElementById("emailTo");
+    const mailLink = document.getElementById("mailLink");
+
+    const blanks = Array.from(document.querySelectorAll("select.blank"));
+
+    // Surowa skala:
+    // 100% -> 6
+    // 95–99% -> 5
+    // 85–94% -> 4
+    // 70–84% -> 3
+    // 55–69% -> 2
+    // <55% -> 1
+    function strictGrade(percent) {
+      if (percent === 100) return 6;
+      if (percent >= 95) return 5;
+      if (percent >= 85) return 4;
+      if (percent >= 70) return 3;
+      if (percent >= 55) return 2;
+      return 1;
+    }
+
+    function resetAll() {
+      blanks.forEach(s => {
+        s.value = "";
+        s.classList.remove("correct", "incorrect");
+      });
+      panel.style.display = "none";
+      mistakesList.innerHTML = "";
+      mistakesBox.style.display = "none";
+      mailLink.classList.add("disabled");
+      mailLink.href = "#";
+    }
+
+    function buildMailto(to, subject, body) {
+      const enc = (v) => encodeURIComponent(v);
+      return `mailto:${enc(to)}?subject=${enc(subject)}&body=${enc(body)}`;
+    }
+
+    function computeAndShow() {
+      const notFilled = blanks.filter(s => !s.value);
+      if (notFilled.length > 0) {
+        alert("Uzupełnij wszystkie znaki ortograficzne (comboboxy), zanim sprawdzisz.");
+        notFilled[0].focus();
+        return;
+      }
+
+      let correct = 0;
+      mistakesList.innerHTML = "";
+      const mistakes = [];
+
+      blanks.forEach((s, idx) => {
+        const ans = s.dataset.answer;
+        const val = s.value;
+
+        s.classList.remove("correct", "incorrect");
+        if (val === ans) {
+          correct++;
+          s.classList.add("correct");
+        } else {
+          s.classList.add("incorrect");
+          mistakes.push({ nr: idx + 1, wybrane: val, poprawne: ans });
+        }
+      });
+
+      const total = blanks.length;
+      const percent = Math.round((correct / total) * 100);
+      const grade = strictGrade(percent);
+
+      panel.style.display = "block";
+      scoreLine.textContent = `Wynik: ${correct} / ${total}`;
+      percentLine.textContent = `Procent: ${percent}%`;
+      gradeLine.textContent = `Ocena (surowa skala): ${grade}`;
+
+      if (mistakes.length > 0) {
+        mistakesBox.style.display = "block";
+        mistakes.forEach(m => {
+          const li = document.createElement("li");
+          li.textContent = `Pole ${m.nr}: wybrano „${m.wybrane}”, poprawnie: „${m.poprawne}”.`;
+          mistakesList.appendChild(li);
+        });
+      } else {
+        mistakesBox.style.display = "none";
+      }
+
+      // Email treść
+      const subject = "Wynik dyktanda ortograficznego – klasa 4";
+      const bodyLines = [
+        "Dzień dobry,",
+        "",
+        "Przesyłam wynik dyktanda ortograficznego (wybór tylko literek):",
+        `- Wynik: ${correct} / ${total}`,
+        `- Procent: ${percent}%`,
+        `- Ocena (surowa): ${grade}`,
+        "",
+        mistakes.length ? "Błędy:" : "Brak błędów.",
+        ...mistakes.map(m => `- Pole ${m.nr}: wybrano „${m.wybrane}”, poprawnie „${m.poprawne}”`),
+        "",
+        "Pozdrawiam"
+      ];
+      const body = bodyLines.join("\n");
+
+      const to = (emailTo.value || "").trim();
+      if (to) {
+        mailLink.href = buildMailto(to, subject, body);
+        mailLink.classList.remove("disabled");
+      } else {
+        mailLink.href = "#";
+        mailLink.classList.add("disabled");
+      }
+
+      emailTo.oninput = () => {
+        const t = (emailTo.value || "").trim();
+        if (t) {
+          mailLink.href = buildMailto(t, subject, body);
+          mailLink.classList.remove("disabled");
+        } else {
+          mailLink.href = "#";
+          mailLink.classList.add("disabled");
+        }
+      };
+    }
+
+    checkBtn.addEventListener("click", () => {
+      const ok = confirm("Czy aby na pewno chcesz sprawdzić? Po sprawdzeniu zobaczysz błędy.");
+      if (!ok) return;
+      computeAndShow();
+    });
+
+    resetBtn.addEventListener("click", resetAll);
+    resetAll();
+  </script>
+</body>
+</html>
